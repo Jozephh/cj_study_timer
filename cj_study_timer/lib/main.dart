@@ -6,6 +6,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,6 +23,8 @@ class MyApp extends StatelessWidget {
 }
 
 class TimerScreen extends StatefulWidget {
+  const TimerScreen({super.key});
+
   @override
   _TimerScreenState createState() => _TimerScreenState();
 }
@@ -37,7 +41,7 @@ class _TimerScreenState extends State<TimerScreen> {
       _isRunning = true;
     });
 
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_timeInSeconds > 0) {
         setState(() {
           _timeInSeconds--;
@@ -70,7 +74,7 @@ class _TimerScreenState extends State<TimerScreen> {
             child: CircleAvatar(
               backgroundColor: Colors.white,
               child: IconButton(
-                icon: Icon(Icons.menu, color: Colors.black),
+                icon: const Icon(Icons.menu, color: Colors.black),
                 onPressed: () {
                   // Menu button action
                 },
@@ -84,13 +88,13 @@ class _TimerScreenState extends State<TimerScreen> {
               children: [
                 Text(
                   _formattedTime,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _startTimer,
                   style: ElevatedButton.styleFrom(
@@ -100,7 +104,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     "Start",
                     style: TextStyle(fontSize: 20),
                   ),
