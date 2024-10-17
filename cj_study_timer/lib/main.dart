@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -16,8 +17,9 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         primaryColor: Colors.white,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        textTheme: GoogleFonts.robotoTextTheme(), // Apply Roboto Font
       ),
-      home: TimerScreen(),
+      home: const TimerScreen(),
     );
   }
 }
@@ -34,9 +36,19 @@ class _TimerScreenState extends State<TimerScreen> {
   int _timeInSeconds = 1500; // 25 minutes in seconds
   Timer? _timer;
   bool _isRunning = false;
+  late int _initialTimeInSeconds; // To store initial time for reset
+
+  @override
+  void initState() {
+    super.initState();
+    _initialTimeInSeconds = _timeInSeconds; // Initialize initial time
+  }
 
   void _startTimer() {
-    if (_isRunning) return;
+    if (_isRunning) {
+      _cancelTimer(); // Cancel the timer when the button is pressed again
+      return;
+    }
     setState(() {
       _isRunning = true;
     });
@@ -52,6 +64,14 @@ class _TimerScreenState extends State<TimerScreen> {
           _isRunning = false;
         });
       }
+    });
+  }
+
+  void _cancelTimer() {
+    _timer?.cancel();
+    setState(() {
+      _isRunning = false;
+      _timeInSeconds = _initialTimeInSeconds; // Reset timer to initial value
     });
   }
 
@@ -90,7 +110,7 @@ class _TimerScreenState extends State<TimerScreen> {
                   _formattedTime,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 48,
+                    fontSize: 60, // Increased font size for timer
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -98,15 +118,28 @@ class _TimerScreenState extends State<TimerScreen> {
                 ElevatedButton(
                   onPressed: _startTimer,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
+                    backgroundColor: _isRunning
+                        ? const Color(
+                            0xFFEF9A9A) // Soft pastel red when running
+                        : Colors.white,
+                    foregroundColor: _isRunning
+                        ? Colors.white // White text when running
+                        : Colors.black,
+                    side: _isRunning
+                        ? const BorderSide(
+                            color: Color(0xFFF48FB1), // Light red border
+                            width: 2.0,
+                          )
+                        : null, // No border when idle
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text(
-                    "Start",
-                    style: TextStyle(fontSize: 20),
+                  child: Text(
+                    _isRunning
+                        ? "Cancel"
+                        : "Start", // Change text based on state
+                    style: const TextStyle(fontSize: 20),
                   ),
                 ),
               ],
@@ -130,6 +163,8 @@ class _TimerScreenState extends State<TimerScreen> {
                     _sliderValue = newValue;
                     _timeInSeconds =
                         (_sliderValue * 60).toInt(); // Update timer in seconds
+                    _initialTimeInSeconds =
+                        _timeInSeconds; // Update initial time for reset
                   });
                 },
                 activeColor: Colors.white,
