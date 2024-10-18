@@ -187,46 +187,45 @@ class _TimerScreenState extends State<TimerScreen>
               );
             },
           ),
-          // Menu
+          // Menu (Clicking the left side doesn't close the menu)
           if (_showMenu)
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _showMenu = false;
-                  });
-                },
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topRight,
-                            end: Alignment.bottomRight,
-                            colors: [Colors.white, Colors.grey],
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 100),
-                            _menuButton("Button 1"),
-                            _menuButton("Button 2"),
-                            _menuButton("Button 3"),
-                          ],
-                        ),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomRight,
+                        colors: [Colors.white, Colors.grey],
                       ),
                     ),
-                    Expanded(
-                      child: Container(
-                        color:
-                            Colors.black.withOpacity(0.5), // Darkens right half
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 100),
+                        _menuButton("Button 1"),
+                        _menuButton("Store"),
+                        _menuButton("Achievements"),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                // Right darkened side, clicking closes the menu
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showMenu = false; // Close the menu
+                      });
+                    },
+                    child: Container(
+                      color:
+                          Colors.black.withOpacity(0.5), // Darkened right half
+                    ),
+                  ),
+                ),
+              ],
             ),
         ],
       ),
