@@ -200,7 +200,13 @@ class _TimerScreenState extends State<TimerScreen>
                   children: [
                     Expanded(
                       child: Container(
-                        color: Colors.black54, // Darkens the left half
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topRight,
+                            end: Alignment.bottomRight,
+                            colors: [Colors.white, Colors.grey],
+                          ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
