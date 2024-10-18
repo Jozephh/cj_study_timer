@@ -32,7 +32,7 @@ class TimerScreen extends StatefulWidget {
 }
 
 class _TimerScreenState extends State<TimerScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   double _sliderValue = 10; // Default to 10 minutes
   int _timeInSeconds = 600; // 10 minutes in seconds
   Timer? _timer;
@@ -40,6 +40,7 @@ class _TimerScreenState extends State<TimerScreen>
   late int _initialTimeInSeconds;
   bool _showMenu = false; // Menu visibility state
   late AnimationController _animationController; // Animation for slider
+  late AnimationController _menuController; // Animation for menu slide
 
   @override
   void initState() {
@@ -48,6 +49,10 @@ class _TimerScreenState extends State<TimerScreen>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
+    );
+    _menuController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400), // Menu slide duration
     );
   }
 
@@ -81,7 +86,7 @@ class _TimerScreenState extends State<TimerScreen>
     setState(() {
       _isRunning = false;
       _timeInSeconds = _initialTimeInSeconds;
-      _animationController.reverse(); // Bring the slider back when cancel
+      _animationController.reverse(); // Bring the slider back when canceled
     });
   }
 
@@ -97,19 +102,60 @@ class _TimerScreenState extends State<TimerScreen>
       backgroundColor: Colors.grey, // Grey background
       body: Stack(
         children: [
-          // Menu Button
+          // Menu Button (Square-shaped with bigger, bolder lines)
           Positioned(
             top: 40,
             left: 20,
-            child: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: IconButton(
-                icon: const Icon(Icons.menu, color: Colors.black),
+            child: SizedBox(
+              width: 80, // Menu button size
+              height: 80,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Square shape
+                  ),
+                  backgroundColor: Colors.white,
+                ),
                 onPressed: () {
                   setState(() {
                     _showMenu = !_showMenu;
+                    if (_showMenu) {
+                      _menuController.forward(); // Slide menu in
+                    } else {
+                      _menuController.reverse(); // Slide menu out
+                    }
                   });
                 },
+                // Custom lines for the menu button
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned(
+                      top: 24,
+                      child: Container(
+                        width: 40,
+                        height: 6,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Positioned(
+                      top: 38,
+                      child: Container(
+                        width: 40,
+                        height: 6,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Positioned(
+                      top: 52,
+                      child: Container(
+                        width: 40,
+                        height: 6,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -120,31 +166,41 @@ class _TimerScreenState extends State<TimerScreen>
               children: [
                 Text(
                   _formattedTime,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 60,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _startTimer,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isRunning
-                        ? const Color(
-                            0xFFEF9A9A) // Soft pastel red when running
-                        : Colors.white,
-                    foregroundColor: _isRunning ? Colors.white : Colors.black,
-                    side: _isRunning
-                        ? const BorderSide(color: Color(0xFFF48FB1), width: 2.0)
-                        : null,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                  style: GoogleFonts.roboto(
+                    textStyle: const TextStyle(
+                      fontSize: 100, // Much larger timer font
+                      fontWeight: FontWeight.w100, // Thin style for timer
+                      color: Colors.white,
                     ),
                   ),
-                  child: Text(
-                    _isRunning ? "Cancel" : "Start",
-                    style: const TextStyle(fontSize: 20),
+                ),
+                const SizedBox(
+                    height: 370), // Added space between timer and button
+                SizedBox(
+                  width: 160, // Proportional size for the start button
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: _startTimer,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _isRunning
+                          ? const Color(
+                              0xFFEF9A9A) // Soft pastel red when running
+                          : Colors.white,
+                      foregroundColor: _isRunning ? Colors.white : Colors.black,
+                      side: const BorderSide(
+                          color: Colors.grey, width: 2.0), // Light grey border
+                      shadowColor: Colors.black, // Shading for the button
+                      elevation: 6, // Add depth to the button
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(8), // Rounded corners
+                      ),
+                    ),
+                    child: Text(
+                      _isRunning ? "Cancel" : "Start",
+                      style: const TextStyle(
+                          fontSize: 24), // Larger font in button
+                    ),
                   ),
                 ),
               ],
@@ -155,11 +211,9 @@ class _TimerScreenState extends State<TimerScreen>
             animation: _animationController,
             builder: (context, child) {
               return Positioned(
-                top: 100,
-                right: 20 -
-                    (_animationController.value *
-                        200), // Moves right and "squishes"
-                bottom: 100,
+                top: 200, // Align to middle of the start button
+                right: 20 - (_animationController.value * 200), // Slide in/out
+                bottom: 165, // Align to middle of the timer
                 child: RotatedBox(
                   quarterTurns: 3,
                   child: Opacity(
@@ -187,45 +241,52 @@ class _TimerScreenState extends State<TimerScreen>
               );
             },
           ),
-          // Menu (Clicking the left side doesn't close the menu)
+          // Menu (Sliding to open)
           if (_showMenu)
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomRight,
-                        colors: [Colors.white, Colors.grey],
+            SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(-1, 0), // Start from left
+                end: Offset.zero, // Slide in to normal position
+              ).animate(_menuController),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.white, Colors.grey],
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 100),
+                          _menuButton("Button 1"),
+                          _menuButton("Store"),
+                          _menuButton("Achievements"),
+                        ],
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 100),
-                        _menuButton("Button 1"),
-                        _menuButton("Store"),
-                        _menuButton("Achievements"),
-                      ],
+                  ),
+                  // Right darkened side, clicking closes the menu
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showMenu = false;
+                          _menuController.reverse(); // Slide menu out
+                        });
+                      },
+                      child: Container(
+                        color: Colors.black
+                            .withOpacity(0.5), // Darkened right half
+                      ),
                     ),
                   ),
-                ),
-                // Right darkened side, clicking closes the menu
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _showMenu = false; // Close the menu
-                      });
-                    },
-                    child: Container(
-                      color:
-                          Colors.black.withOpacity(0.5), // Darkened right half
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
         ],
       ),
@@ -248,6 +309,7 @@ class _TimerScreenState extends State<TimerScreen>
   void dispose() {
     _timer?.cancel();
     _animationController.dispose();
+    _menuController.dispose(); // Dispose menu controller
     super.dispose();
   }
 }
