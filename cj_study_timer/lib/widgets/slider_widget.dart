@@ -28,7 +28,6 @@ class SliderWidget extends StatelessWidget {
               min: 10,
               max: 120,
               divisions: 22,
-              label: "${sliderValue.toInt()} minutes",
               onChanged: onChanged,
               activeColor: Colors.white,
               inactiveColor: Colors.grey,
