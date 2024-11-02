@@ -94,7 +94,7 @@ class _TimerScreenState extends State<TimerScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Color(0xff81d8d0),
       body: Stack(
         children: [
           MenuButton(
